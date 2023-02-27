@@ -1,0 +1,30 @@
+<!--Create a filepicker element-->
+<input id="photo" type="file">
+
+<!-- element to display results from model-->
+<div id="results"></div>
+
+<script>
+  
+  // call hugging face space api and update results element with model results
+  async function loaded(reader) {
+    console.log(reader.result)
+    const response = await fetch('https://hf.space/embed/rbarman/resnet50-example/+/api/predict/', {
+      method: "POST", body: JSON.stringify({ "data": [reader.result] }),
+      headers: { "Content-Type": "application/json" }
+    });
+    const json = await response.json();
+    console.log(json)
+    const label = json['data'][0]['label'];
+    results.innerHTML = `<br/><img src="${reader.result}" width="300"> <p>${label}</p>`
+  }
+  
+  function read() {
+    const reader = new FileReader();
+    reader.addEventListener('load', () => loaded(reader))
+    reader.readAsDataURL(photo.files[0]);
+  }
+
+  // When the file picker gets new inputs, execute the read() function.
+  photo.addEventListener('input', read);
+</script>
